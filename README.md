@@ -9,4 +9,50 @@ ros2 run teleop_twist_joy teleop_node --ros-args --params-file my_joy_config.yam
 
 sudo chmod 777 /dev/ttyACM0
 
-# Champion
+python3 /home/champion/f1/src/bmi160.py
+
+source install/setup.bash
+ros2 launch /home/champion/f1/src/imu_visualizer_launch.py
+
+ros2 topic list
+
+ros2 run tf2_ros static_transform_publisher 0 0 0.05 0 0 0 base_link imu_link
+
+ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 odom base_link
+
+ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 map odom
+
+
+# Champion ---> RLIDAR
+
+ros2 run rplidar_ros rplidar_node --ros-args \
+    -p serial_port:=/dev/ttyUSB0 \
+    -p serial_baudrate:=115200 \
+    -p frame_id:=laser_frame \
+    -p inverted:=false \
+    -p angle_compensate:=true
+    
+    ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 base_link laser_frame
+    
+    rviz2
+
+
+// ________________________________________________________________________________
+
+# Auto Driver
+    
+/usr/bin/python /home/champion/f1/src/wall_follower/src/wall_follow/wall_follow/wall_follower.py
+
+ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 map odom
+ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 odom base_link
+
+ros2 run tf2_tools view_frames
+
+rqt_graph
+
+
+
+cd /home/champion/f1/src/wall_follower
+source install/setup.bash
+ros2 launch wall_follow follow_the_gap_rviz.launch.py
+

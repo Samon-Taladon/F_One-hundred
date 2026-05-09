@@ -36,6 +36,7 @@
 #include <string>
 
 #include <rclcpp/rclcpp.hpp>
+#include <geometry_msgs/msg/twist.hpp>
 #include <sensor_msgs/msg/imu.hpp>
 #include <std_msgs/msg/float64.hpp>
 #include <vesc_msgs/msg/vesc_state.hpp>
@@ -68,15 +69,17 @@ private:
   void vescPacketCallback(const std::shared_ptr<VescPacket const> & packet);
   void vescErrorCallback(const std::string & error);
 
-  //subscribe cmd_vel by BP
-  //rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_sub_;
-  //void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg);
-  //subscribe joy by BP
+  rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_sub_;
   rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr joy_sub_;
+  void cmdVelCallback(const geometry_msgs::msg::Twist::SharedPtr msg);
   void joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy);
-  //Publish motor_speed_pub
   rclcpp::Publisher<Float64>::SharedPtr motor_speed_pub_;
   rclcpp::Publisher<Float64>::SharedPtr servo_angle_pub_;
+
+  double speed_to_erpm_gain_;
+  double speed_to_erpm_offset_;
+  double steering_to_servo_gain_;
+  double steering_to_servo_offset_;
   
   // limits on VESC commands
   struct CommandLimit
@@ -136,10 +139,6 @@ private:
   void positionCallback(const Float64::SharedPtr position);
   void servoCallback(const Float64::SharedPtr servo);
   void speedCallback(const Float64::SharedPtr speed);
-  /**Added by BP
-  void servoCallback(const geometry_msgs::msg::Twist::SharedPtr msg);
-  void speedCallback(const geometry_msgs::msg::Twist::SharedPtr msg);
-  */
   void timerCallback();
 };
 

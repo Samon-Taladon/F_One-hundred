@@ -39,16 +39,15 @@
 #include <sstream>
 #include <string>
 
-//Added by BP
-#include "rclcpp/rclcpp.hpp"
+#include <geometry_msgs/msg/twist.hpp>
 #include <sensor_msgs/msg/joy.hpp>
-//
 
 namespace vesc_driver
 {
 
 using namespace std::chrono_literals;
 using std::placeholders::_1;
+using geometry_msgs::msg::Twist;
 using std_msgs::msg::Float64;
 using vesc_msgs::msg::VescStateStamped;
 using sensor_msgs::msg::Imu;
@@ -81,9 +80,15 @@ VescDriver::VescDriver(const rclcpp::NodeOptions & options)
     return;
   }
 
-  // BP Subscribe to the joy topic
-  joy_sub_ = this->create_subscription<sensor_msgs::msg::Joy>("joy", 10, std::bind(&VescDriver::joyCallback, this, std::placeholders::_1));
-  //BP publish
+  speed_to_erpm_gain_ = declare_parameter<double>("speed_to_erpm_gain", 4614.0);
+  speed_to_erpm_offset_ = declare_parameter<double>("speed_to_erpm_offset", 0.0);
+  steering_to_servo_gain_ = declare_parameter<double>("steering_angle_to_servo_gain", -1.2135);
+  steering_to_servo_offset_ = declare_parameter<double>("steering_angle_to_servo_offset", 0.5304);
+
+  cmd_vel_sub_ = create_subscription<Twist>(
+    "/cmd_vel", rclcpp::QoS{10}, std::bind(&VescDriver::cmdVelCallback, this, _1));
+  joy_sub_ = create_subscription<sensor_msgs::msg::Joy>(
+    "joy", rclcpp::QoS{10}, std::bind(&VescDriver::joyCallback, this, _1));
   motor_speed_pub_ = create_publisher<Float64>("/motor_speed", rclcpp::QoS{10});
   servo_angle_pub_ = create_publisher<Float64>("/servo_angle", rclcpp::QoS{10});
 
@@ -352,9 +357,34 @@ void VescDriver::servoCallback(const Float64::SharedPtr servo)
   }
 }
 
+void VescDriver::cmdVelCallback(const Twist::SharedPtr msg)
+{
+  if (driver_mode_ != MODE_OPERATING) {
+    return;
+  }
 
-//Added by BP
-//Define the map function
+  const double motor_speed = speed_limit_.clip(
+    speed_to_erpm_gain_ * msg->linear.x + speed_to_erpm_offset_);
+  const double servo_angle = servo_limit_.clip(
+    steering_to_servo_gain_ * msg->angular.z + steering_to_servo_offset_);
+
+  vesc_.setSpeed(motor_speed);
+  vesc_.setServo(servo_angle);
+
+  auto motor_speed_msg = Float64();
+  motor_speed_msg.data = motor_speed;
+  motor_speed_pub_->publish(motor_speed_msg);
+
+  auto servo_angle_msg = Float64();
+  servo_angle_msg.data = servo_angle;
+  servo_angle_pub_->publish(servo_angle_msg);
+
+  auto servo_sensor_msg = Float64();
+  servo_sensor_msg.data = servo_angle;
+  servo_sensor_pub_->publish(servo_sensor_msg);
+}
+
+
 double map(double value, double in_min, double in_max, double out_min, double out_max) {
     double mappedValue = (value - in_min) / (in_max - in_min) * (out_max - out_min) + out_min;
     return mappedValue;
@@ -368,24 +398,23 @@ void VescDriver::joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy)
     double angular_vel = joy->axes[2];
 
     // Convert linear and angular velocities to VESC motor controller commands
-    double motor_speed = map(linear_vel, -1.0, 1.0, -10000.0, 10000.0);
+    double motor_speed = speed_limit_.clip(map(linear_vel, -1.0, 1.0, -3000, 3000.0));
     vesc_.setSpeed(motor_speed);
-    // Publish motor_speed
-    //auto motor_speed_msg = Float64();
-    std_msgs::msg::Float64 motor_speed_msg;
+    auto motor_speed_msg = Float64();
     motor_speed_msg.data = motor_speed;
     motor_speed_pub_->publish(motor_speed_msg);
       
-    double servo_angle = map(angular_vel, -1.0, 1.0, 65.0, 67.0);
+    double servo_angle = servo_limit_.clip(map(angular_vel, -1.0, 1.0, 0.15, 0.85));
     vesc_.setServo(servo_angle);
-    //Publish servo_angle
     auto servo_angle_msg = Float64();
     servo_angle_msg.data = servo_angle;
     servo_angle_pub_->publish(servo_angle_msg);
-    
+
+    auto servo_sensor_msg = Float64();
+    servo_sensor_msg.data = servo_angle;
+    servo_sensor_pub_->publish(servo_sensor_msg);
   }
 }
-//
 
 VescDriver::CommandLimit::CommandLimit(
   rclcpp::Node * node_ptr,
