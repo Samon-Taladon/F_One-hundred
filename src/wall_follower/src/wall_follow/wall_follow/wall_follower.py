@@ -22,18 +22,19 @@ class WallFollower(Node):
         self.cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
 
         self.declare_parameter('target_distance', 0.55)
-        self.declare_parameter('forward_speed', 0.32)
+        self.declare_parameter('forward_speed', 0.22)
         self.declare_parameter('slow_speed', 0.08)
 
-        # 🚀 สำหรับหลบ
-        self.declare_parameter('turn_speed', 0.45)
+        # Keep angular commands inside the calibrated VESC servo range.
+        self.declare_parameter('turn_speed', 0.18)
         self.declare_parameter('front_stop_distance', 0.50)
 
-        self.declare_parameter('kp', 1.2)
+        self.declare_parameter('kp', 0.45)
         self.declare_parameter('ki', 0.0)
-        self.declare_parameter('kd', 0.15)
+        self.declare_parameter('kd', 0.03)
         self.declare_parameter('max_integral', 0.5)
-        self.declare_parameter('max_angular_speed', 1.5)
+        self.declare_parameter('max_angular_speed', 0.25)
+        self.declare_parameter('right_scan_angle_deg', -90.0)
 
         self.previous_error = 0.0
         self.integral = 0.0
@@ -56,9 +57,10 @@ class WallFollower(Node):
         max_angular_speed = self.get_parameter('max_angular_speed').value
 
         front_stop_distance = self.get_parameter('front_stop_distance').value
+        right_scan_angle_deg = self.get_parameter('right_scan_angle_deg').value
 
-        # 🔥 lidar
-        right = self.get_range(scan, 90.0)
+        # ROS LaserScan angles are positive to the left and negative to the right.
+        right = self.get_range(scan, right_scan_angle_deg)
         front = self.get_range(scan, 0.0)
 
         cmd = Twist()

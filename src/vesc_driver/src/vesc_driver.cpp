@@ -404,7 +404,7 @@ void VescDriver::joyCallback(const sensor_msgs::msg::Joy::SharedPtr joy)
     motor_speed_msg.data = motor_speed;
     motor_speed_pub_->publish(motor_speed_msg);
       
-    double servo_angle = servo_limit_.clip(map(angular_vel, -1.0, 1.0, 0.15, 0.85));
+    double servo_angle = servo_limit_.clip(map(angular_vel, -1.0, 1.0, 0.85, 0.15));
     vesc_.setServo(servo_angle);
     auto servo_angle_msg = Float64();
     servo_angle_msg.data = servo_angle;

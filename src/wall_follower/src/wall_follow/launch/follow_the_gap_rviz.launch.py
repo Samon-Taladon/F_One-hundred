@@ -22,8 +22,7 @@ def generate_launch_description():
     use_tf = LaunchConfiguration('tf')
     use_fake_odom = LaunchConfiguration('fake_odom')
     use_lidar = LaunchConfiguration('lidar')
-    lidar_serial_port = LaunchConfiguration('lidar_serial_port')
-    lidar_baudrate = LaunchConfiguration('lidar_baudrate')
+    lidar_ip_address = LaunchConfiguration('lidar_ip_address')
 
     return LaunchDescription([
         DeclareLaunchArgument(
@@ -47,17 +46,12 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'lidar',
             default_value='true',
-            description='Start rplidar_ros so /scan is published.'
+            description='Start urg_node so /scan is published.'
         ),
         DeclareLaunchArgument(
-            'lidar_serial_port',
-            default_value='/dev/rplidar',
-            description='Serial port for RPLIDAR.'
-        ),
-        DeclareLaunchArgument(
-            'lidar_baudrate',
-            default_value='115200',
-            description='Serial baudrate for RPLIDAR.'
+            'lidar_ip_address',
+            default_value='192.168.1.10',
+            description='IP address for the Hokuyo/URG LiDAR.'
         ),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
@@ -69,18 +63,12 @@ def generate_launch_description():
             condition=IfCondition(use_tf)
         ),
         Node(
-            package='rplidar_ros',
-            executable='rplidar_node',
-            name='rplidar_node',
+            package='urg_node',
+            executable='urg_node_driver',
+            name='urg_node_driver',
             parameters=[{
-                'channel_type': 'serial',
-                'serial_port': lidar_serial_port,
-                'serial_baudrate': lidar_baudrate,
+                'ip_address': lidar_ip_address,
                 'frame_id': 'laser_frame',
-                'inverted': False,
-                'angle_compensate': True,
-                'topic_name': 'scan',
-                'scan_mode': 'Standard',
             }],
             condition=IfCondition(use_lidar),
             output='screen'

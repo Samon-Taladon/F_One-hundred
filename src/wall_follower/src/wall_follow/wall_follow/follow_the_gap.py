@@ -120,7 +120,7 @@ class FollowTheGap(Node):
         )  # จำกัดคำสั่งเลี้ยวสูงสุดที่ส่งออกทาง cmd_vel.angular.z
         self.declare_parameter(
             'invert_steering',
-            True
+            False
         )  # กลับทิศเลี้ยว ถ้า driver รถรับซ้ายขวาสลับกับ ROS
         self.declare_parameter(
             'publish_visualization',
