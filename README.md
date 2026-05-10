@@ -1,3 +1,5 @@
+codex
+
 source install/setup.bash
 ros2 launch vesc_driver vesc_driver_node.launch.py
 
@@ -37,11 +39,18 @@ ros2 run rplidar_ros rplidar_node --ros-args \
     rviz2
 
 
+laser
+sudo ip addr add 192.168.1.100/24 dev enP8p1s0
+ip addr show enP8p1s0
+ping 192.168.1.10
+ros2 run urg_node urg_node_driver --ros-args -p ip_address:=192.168.1.10
+
 // ________________________________________________________________________________
 
 # Auto Driver
     
 /usr/bin/python /home/champion/f1/src/wall_follower/src/wall_follow/wall_follow/wall_follower.py
+ros2 run wall_follow wall_follower
 
 ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 map odom
 ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 odom base_link
