@@ -1,0 +1,52 @@
+imu_bridge:
+  ros__parameters:
+    input_topic: "/imu/data_raw"
+    output_topic: "/imu"
+    frame_id: "imu"
+    stamp_with_now: false
+
+icm20948_imu_publisher:
+  ros__parameters:
+    bus_number: 7
+    i2c_address: 104
+    imu_topic: "/imu"
+    raw_imu_topic: "/imu/data_raw"
+    frame_id: "imu"
+    publish_rate: 50.0
+    publish_raw_copy: true
+    complementary_alpha: 0.96
+    calibration_samples: 200
+    gyro_deadband_rad_s: 0.01
+
+trajectory_logger:
+  ros__parameters:
+    pose_source: "tf"
+    map_frame: "map"
+    base_frame: "base_link"
+    min_distance: 0.2
+    timer_rate: 20.0
+    append: false
+    auto_start: true
+
+pure_pursuit_local:
+  ros__parameters:
+    map_frame: "map"
+    base_frame: "base_link"
+    cmd_vel_topic: "/cmd_vel"
+    joy_topic: "/joy"
+    start_button_index: 1
+    stop_button_index: 0
+    auto_start: false
+    control_rate: 20.0
+    lookahead_distance: 0.8
+    min_lookahead: 0.45
+    max_lookahead: 1.2
+    use_dynamic_lookahead: false
+    wheelbase: 0.33
+    steering_limit_deg: 22.0
+    steering_gain: 1.0
+    invert_steering: false
+    linear_speed: 0.511529990823329
+    publish_stop_when_disabled: true
+    loop_path: true
+    search_window: 80

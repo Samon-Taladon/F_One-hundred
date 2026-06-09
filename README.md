@@ -1,5 +1,7 @@
 codex
 
+colcon build --packages-select pure_pursuit
+
 source install/setup.bash
 ros2 launch vesc_driver vesc_driver_node.launch.py
 
@@ -52,6 +54,10 @@ ros2 run urg_node urg_node_driver --ros-args -p ip_address:=192.168.1.10
 /usr/bin/python /home/champion/f1/src/wall_follower/src/wall_follow/wall_follow/wall_follower.py
 ros2 run wall_follow wall_follower
 
+#  New Auto Driver
+ros2 launch follow_gap_navigation follow_gap_navigation.launch.py
+
+
 ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 map odom
 ros2 run tf2_ros static_transform_publisher 0 0 0 0 0 0 odom base_link
 
@@ -61,7 +67,20 @@ rqt_graph
 
 
 
+
 cd /home/champion/f1/src/wall_follower
 source install/setup.bash
 ros2 launch wall_follow follow_the_gap_rviz.launch.py
+
+git add .
+git commit -m "update code"
+git push origin main
+
+
+
+
+
+
+
+
 

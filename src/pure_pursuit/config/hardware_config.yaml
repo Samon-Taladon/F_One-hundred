@@ -1,0 +1,29 @@
+pure_pursuit:
+  ros__parameters:
+    odom_topic: "/odom"
+    car_refFrame: "base_link"
+    global_refFrame: "odom"
+    drive_topic: "/cmd_vel"
+    drive_msg_type: "twist"
+    joy_topic: "/joy"
+    start_button_index: 1
+    stop_button_index: 0
+    rviz_current_waypoint_topic: "/current_waypoint"
+    rviz_lookahead_waypoint_topic: "/lookahead_waypoint"
+
+    min_lookahead: 0.45
+    max_lookahead: 1.20
+    lookahead_ratio: 2.0
+    K_p: 0.35
+    steering_limit: 22.0
+    velocity_percentage: 0.60
+    fixed_motor_speed_erpm: 2360.171377658844
+    speed_to_erpm_gain: 4614.0
+    speed_to_erpm_offset: 0.0
+    invert_steering: false
+    use_relative_origin: true
+    use_tf_transform: false
+
+waypoint_visualizer_node:
+  ros__parameters:
+    global_refFrame: "odom"

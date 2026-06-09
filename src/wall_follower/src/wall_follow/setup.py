@@ -35,6 +35,9 @@ setup(
         'console_scripts': [
             'wall_follower = wall_follow.wall_follower:main',
             'follow_the_gap = wall_follow.follow_the_gap:main',
+            'lidar_scan_odom = wall_follow.lidar_scan_odom:main',
+            'imu_publisher = wall_follow.imu_publisher:main',
+            'vesc_imu_odom = wall_follow.vesc_imu_odom:main',
         ],
     },
 )
