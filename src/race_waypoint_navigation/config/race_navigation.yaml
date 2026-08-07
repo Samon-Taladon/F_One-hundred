@@ -1,0 +1,49 @@
+joy_waypoint_recorder:
+  ros__parameters:
+    map_frame: map
+    base_frame: base_link
+    joy_topic: /joy
+    record_button_index: 6
+    stop_button_index: 0
+    toggle_mode: false
+    auto_start: false
+    min_distance: 0.15
+    timer_rate: 30.0
+
+race_pure_pursuit:
+  ros__parameters:
+    map_frame: map
+    base_frame: base_link
+    cmd_vel_topic: /cmd_vel
+    scan_topic: /scan
+    joy_topic: /joy
+    start_button_index: 1
+    stop_button_index: 0
+    auto_start: false
+    control_rate: 30.0
+    loop_path: true
+    search_window: 120
+    min_lap_time: 5.0
+    default_speed: 0.35
+    max_speed: 1.2
+    min_moving_speed: 0.18
+    default_lookahead: 0.75
+    min_lookahead: 0.40
+    max_lookahead: 1.40
+    wheelbase: 0.33
+    steering_limit_deg: 22.0
+    steering_gain: 1.0
+    invert_steering: false
+    scan_timeout: 0.5
+    front_angle_range_deg: 70.0
+    emergency_stop_distance: 0.35
+    slow_down_distance: 1.0
+    avoidance_enter_distance: 0.70
+    avoidance_exit_distance: 1.10
+    avoidance_speed: 0.25
+    gap_min_distance: 0.45
+    gap_bubble_radius: 0.35
+    gap_steering_gain: 1.0
+    corridor_width: 1.2
+    return_error_threshold: 0.35
+    publish_markers: true
